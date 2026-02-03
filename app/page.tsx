@@ -1,10 +1,10 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { getCompatibilityFortune } from './services/geminiService';
-import type { FortuneResult } from './types';
-import LoadingSpinner from './components/LoadingSpinner';
+import { getCompatibilityFortune } from './services/geminiService'; // /services/ を確認
+import type { FortuneResult } from './types'; // types を確認
+import LoadingSpinner from './components/LoadingSpinner'; // ./components/ を確認
 import ResultCard from './components/ResultCard';
-import DOBInput from './DOBInput'; // 修正：./components/ を削除
-import CosmicConnection from './CosmicConnection'; // 修正：./components/ を削除
+import DOBInput from './DOBInput';
+import CosmicConnection from './CosmicConnection';
 import UsageManual from './components/UsageManual';
 
 interface DisplayedResult {
