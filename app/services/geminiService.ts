@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { FortuneResult } from "../types";
+import { FortuneResult } from "../types"; // ここが ../types であることを確認
 
 export async function getCompatibilityFortune(
   name1: string, name2: string, 
@@ -17,7 +17,6 @@ export async function getCompatibilityFortune(
   const response = await result.response;
   const text = response.text();
   
-  // JSON部分だけを抽出してパース
   const jsonMatch = text.match(/\{.*\}/s);
   if (jsonMatch) {
     return JSON.parse(jsonMatch[0]);
