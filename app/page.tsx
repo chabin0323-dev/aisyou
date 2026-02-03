@@ -3,8 +3,8 @@ import { getCompatibilityFortune } from './services/geminiService';
 import type { FortuneResult } from './types';
 import LoadingSpinner from './components/LoadingSpinner';
 import ResultCard from './components/ResultCard';
-import DOBInput from './DOBInput';
-import CosmicConnection from './CosmicConnection';
+import DOBInput from './DOBInput'; // 修正：./components/ を削除
+import CosmicConnection from './CosmicConnection'; // 修正：./components/ を削除
 import UsageManual from './components/UsageManual';
 
 interface DisplayedResult {
@@ -190,106 +190,4 @@ const App: React.FC = () => {
               <div className="flex flex-col items-end gap-2">
                 <button onClick={() => setIsManualOpen(true)} className="flex flex-col items-center gap-1 group">
                   <div className="p-2 bg-fuchsia-900/40 rounded-full border border-fuchsia-500/30 text-fuchsia-300 transition-all group-hover:bg-fuchsia-800/60 shadow-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253" /></svg>
-                  </div>
-                  <span className="text-[10px] text-fuchsia-300/70">取説</span>
-                </button>
-                {lastSaved && (
-                  <div className="flex items-center gap-1.5 px-2 py-1 bg-green-900/20 border border-green-500/30 rounded text-[10px] text-green-300 animate-pulse">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
-                    自動保存済み {lastSaved !== '復元済み' && `(${lastSaved})`}
-                  </div>
-                )}
-              </div>
-            </header>
-
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center border-b border-white/10 pb-2 mb-2">
-                    <h3 className="text-lg font-semibold text-fuchsia-300 flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-fuchsia-400"></span>あなた</h3>
-                    <div className="flex items-center">
-                      <input id="fix-person1" type="checkbox" checked={isPerson1Fixed} onChange={(e) => setIsPerson1Fixed(e.target.checked)} className="h-5 w-5 rounded text-fuchsia-600 bg-transparent cursor-pointer" />
-                      <label htmlFor="fix-person1" className="ml-2 text-sm md:text-base text-slate-300 cursor-pointer font-medium">情報を固定</label>
-                    </div>
-                  </div>
-                  <div className="space-y-3 pt-2">
-                    <div className="grid grid-cols-2 gap-3">
-                      <select value={bloodType1} onChange={(e) => setBloodType1(e.target.value)} className={inputBaseClasses} disabled={isLoading}>
-                        <option value="" disabled>血液型</option>
-                        {bloodTypes.map(bt => <option key={bt} value={bt}>{bt}型</option>)}
-                      </select>
-                      <select value={eto1} onChange={(e) => setEto1(e.target.value)} className={inputBaseClasses} disabled={isLoading}>
-                        <option value="" disabled>干支</option>
-                        {etos.map(e => <option key={e} value={e}>{e}</option>)}
-                      </select>
-                    </div>
-                    <select value={constellation1} onChange={(e) => setConstellation1(e.target.value)} className={inputBaseClasses} disabled={isLoading}>
-                      <option value="" disabled>星座</option>
-                      {constellations.map(c => <option key={c} value={c}>{c}</option>)}
-                    </select>
-                    <DOBInput value={dob1} onChange={setDob1} disabled={isLoading} ariaLabel="あなたの生年月日" />
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="border-b border-white/10 pb-2 mb-2">
-                    <h3 className="text-lg font-semibold text-fuchsia-300 flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-cyan-400"></span>お相手</h3>
-                  </div>
-                  <div className="space-y-3">
-                    <div className="relative">
-                      <input type="text" value={name2} onChange={(e) => setName2(e.target.value)} placeholder="お名前を入力" className={`${inputBaseClasses} pl-10`} disabled={isLoading} />
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" /></svg>
-                      </span>
-                    </div>
-                    <div className="pt-2">
-                      <select value={relationship} onChange={handleRelationshipChange} className={inputBaseClasses} disabled={isLoading}>
-                        <option value="" disabled>現在の関係性</option>
-                        {relationships.map(r => <option key={r} value={r}>{r}</option>)}
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-6 border-t border-white/5">
-                <div className="flex items-center gap-4 mb-6 flex-wrap">
-                  <div className="flex gap-2 bg-black/20 p-1 rounded-lg border border-white/5">
-                    {['today', 'tomorrow'].map((d) => (
-                      <button key={d} onClick={() => setDivinationDate(d as any)} className={`px-4 py-1.5 rounded-md text-sm transition-all ${divinationDate === d ? 'bg-fuchsia-600 text-white' : 'text-slate-400'}`}>
-                        {d === 'today' ? '本日' : '明日'} ({getFormattedDate(d as any)})
-                      </button>
-                    ))}
-                  </div>
-                  <div className="px-3 py-1.5 bg-white/5 rounded-lg border border-white/10 text-xs text-fuchsia-200">
-                    本日の残り：<span className="font-bold text-yellow-400">{Math.max(0, DAILY_LIMIT - usageCount)}</span>回
-                  </div>
-                </div>
-
-                <button onClick={handleFortuneTell} disabled={isLoading || usageCount >= DAILY_LIMIT} className={`group relative w-full py-4 text-lg font-bold text-white rounded-xl overflow-hidden shadow-xl transition-all ${usageCount >= DAILY_LIMIT ? 'bg-gray-700 cursor-not-allowed grayscale' : 'hover:scale-[1.01]'}`}>
-                  <div className={`absolute inset-0 bg-gradient-to-r from-fuchsia-600 via-purple-600 to-indigo-600 ${usageCount >= DAILY_LIMIT ? 'opacity-20' : ''}`}></div>
-                  <span className="relative flex items-center justify-center gap-2">{isLoading ? '鑑定中...' : '運命を占う'}</span>
-                </button>
-
-                {isLoading && <div className="mt-6 flex justify-center"><LoadingSpinner /></div>}
-                {displayedResult && <div className="mt-8 animate-fade-in-up"><ResultCard result={displayedResult.result} names={displayedResult.names} dateStr={displayedResult.dateStr} /></div>}
-                {error && <div className="mt-6 p-4 bg-red-900/30 border border-red-500/50 rounded-xl text-red-200 text-center text-sm">{error}</div>}
-              </div>
-            </div>
-          </div>
-          <div className="w-full lg:w-2/5 relative border-t lg:border-t-0 lg:border-l border-white/10 min-h-[400px]">
-            <CosmicConnection />
-          </div>
-        </div>
-        <footer className="w-full flex flex-col items-center pb-12 mt-12">
-          <div className="flex items-end gap-3 scale-110 md:scale-125">
-             <span className="text-lg md:text-xl text-gray-500 mb-1 font-bold italic">AI相性占い ver.3.1</span>
-          </div>
-        </footer>
-      </main>
-    </div>
-  );
-};
-
-export default App;
+                    <svg xmlns="http
