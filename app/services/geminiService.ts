@@ -1,28 +1,109 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { FortuneResult } from "../types";
+import { GoogleGenAI, Type } from "@google/genai";
+import type { FortuneResult } from '../types';
 
-export async function getCompatibilityFortune(
-  name1: string, name2: string, 
-  bloodType: string, constellation: string, eto: string, dob: string,
-  bt2: any, c2: any, e2: any,
-  relationship: string, dateType: string
-): Promise<FortuneResult> {
-  // VercelのEnvironment Variablesに登録したキーを読み込みます
-  const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY || "");
-  
-  // 前回成功したモデル名「gemini-1.5-flash」を正確に使用します
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+// Vercel + Vite 用（重要）
+const apiKey = import.meta.env.VITE_API_KEY as string | undefined;
 
-  const prompt = `${name1}（${constellation}、${bloodType}型、${eto}、生年月日:${dob}）と、お相手の${name2}さんの相性を、${relationship}という関係性を踏まえて占ってください。結果は必ず以下のJSON形式で返してください。
-  {"score": 相性0-100の数値, "summary": "一言要約", "advice": "詳細な鑑定内容とアドバイス"}`;
-
-  const result = await model.generateContent(prompt);
-  const response = await result.response;
-  const text = response.text();
-  
-  const jsonMatch = text.match(/\{.*\}/s);
-  if (jsonMatch) {
-    return JSON.parse(jsonMatch[0]);
-  }
-  throw new Error("鑑定結果の解析に失敗しました。");
+if (!apiKey) {
+  throw new Error("VITE_API_KEY is not set");
 }
+
+const ai = new GoogleGenAI({ apiKey });
+
+const divinationDetailSchema = {
+  type: Type.OBJECT,
+  properties: {
+    title: { type: Type.STRING },
+    content: { type: Type.STRING },
+  },
+  required: ["title", "content"],
+};
+
+const fiveElementsSchema = {
+  type: Type.OBJECT,
+  properties: {
+    title: { type: Type.STRING },
+    content: { type: Type.STRING },
+  },
+  required: ["title", "content"],
+};
+
+const responseSchema = {
+  type: Type.OBJECT,
+  properties: {
+    score: { type: Type.INTEGER },
+    title: { type: Type.STRING },
+    reading: { type: Type.STRING },
+    advice: { type: Type.STRING },
+    luckyNumber: { type: Type.STRING },
+    luckyColor: { type: Type.STRING },
+    luckyItem: { type: Type.STRING },
+    generalFortune: { ...divinationDetailSchema },
+    nameCompatibility: { ...divinationDetailSchema },
+    constellationCompatibility: { ...divinationDetailSchema },
+    bloodTypeCompatibility: { ...divinationDetailSchema },
+    fiveElementsCompatibility: { ...fiveElementsSchema },
+    destinyAnalysis: { ...divinationDetailSchema },
+  },
+  required: [
+    "score",
+    "title",
+    "reading",
+    "advice",
+    "luckyNumber",
+    "luckyColor",
+    "luckyItem",
+    "generalFortune",
+    "nameCompatibility",
+    "constellationCompatibility",
+    "bloodTypeCompatibility",
+    "fiveElementsCompatibility",
+    "destinyAnalysis"
+  ],
+};
+
+export const getCompatibilityFortune = async (
+  name1: string | null,
+  name2: string | null,
+  bloodType1: string | null,
+  constellation1: string | null,
+  eto1: string | null,
+  dob1: string | null,
+  bloodType2: string | null,
+  constellation2: string | null,
+  dob2: string | null,
+  relationship: string,
+  divinationDate: 'today' | 'tomorrow'
+): Promise<FortuneResult> => {
+
+  const prompt = `
+  相性占いを作成してください。
+
+  あなた:
+  名前: ${name1}
+  血液型: ${bloodType1}
+  星座: ${constellation1}
+  干支: ${eto1}
+  生年月日: ${dob1}
+
+  相手:
+  名前: ${name2}
+  血液型: ${bloodType2}
+  星座: ${constellation2}
+  生年月日: ${dob2}
+
+  関係: ${relationship}
+  `;
+
+  const response = await ai.models.generateContent({
+    model: "gemini-3-flash-preview",
+    contents: prompt,
+    config: {
+      responseMimeType: "application/json",
+      responseSchema,
+      temperature: 0,
+    },
+  });
+
+  return JSON.parse(response.text) as FortuneResult;
+};
